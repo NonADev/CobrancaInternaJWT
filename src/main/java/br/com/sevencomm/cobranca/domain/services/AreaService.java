@@ -15,8 +15,8 @@ import java.util.Optional;
 @Service
 public class AreaService implements IAreaService {
 
-    private AreaRepository areaRepository;
-    private UserRepository userRepository;
+    private final AreaRepository areaRepository;
+    private final UserRepository userRepository;
 
     public AreaService(AreaRepository areaRepository, UserRepository userRepository) {
         this.areaRepository = areaRepository;

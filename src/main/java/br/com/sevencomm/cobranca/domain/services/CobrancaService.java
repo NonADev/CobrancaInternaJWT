@@ -17,9 +17,9 @@ import java.util.Optional;
 @Service
 public class CobrancaService implements ICobrancaService {
 
-    private UserRepository usuarioRepository;
-    private CobrancaRepository cobrancaInternaRepository;
-    private AreaRepository areaRepository;
+    private final UserRepository usuarioRepository;
+    private final CobrancaRepository cobrancaInternaRepository;
+    private final AreaRepository areaRepository;
 
     public CobrancaService(CobrancaRepository cobrancaInternaRepository, UserRepository usuarioRepository, AreaRepository areaRepository) {
         this.cobrancaInternaRepository = cobrancaInternaRepository;
@@ -32,7 +32,8 @@ public class CobrancaService implements ICobrancaService {
 
         Optional<Cobranca> fndCobranca = cobrancaInternaRepository.findById(cobrancaId);
 
-        if (!fndCobranca.isPresent()) throw new ObjectNotFoundException("Cobranca not found");
+        if (!fndCobranca.isPresent())
+            throw new ObjectNotFoundException("Cobranca not found");
 
         if (!(fndCobranca.get().getBeneficiarioAreaId().equals(usuario.getAreaId())) && !(fndCobranca.get().getPagadorAreaId().equals(usuario.getAreaId())))
             throw new IllegalArgumentException("Usuario not allowed");
@@ -45,7 +46,8 @@ public class CobrancaService implements ICobrancaService {
 
         Optional<Cobranca> fndCobranca = cobrancaInternaRepository.findById(id);
 
-        if (!fndCobranca.isPresent()) throw new IllegalArgumentException("Cobranca not found");
+        if (!fndCobranca.isPresent())
+            throw new IllegalArgumentException("Cobranca not found");
 
         if (!(fndCobranca.get().getBeneficiarioAreaId().equals(usuario.getAreaId())))
             throw new IllegalArgumentException("Usuario not allowed");
@@ -60,7 +62,8 @@ public class CobrancaService implements ICobrancaService {
 
         Optional<Cobranca> fndCobranca = cobrancaInternaRepository.findById(id);
 
-        if (!fndCobranca.isPresent()) throw new IllegalArgumentException("Cobranca not found");
+        if (!fndCobranca.isPresent())
+            throw new IllegalArgumentException("Cobranca not found");
 
         if (!(fndCobranca.get().getBeneficiarioAreaId().equals(usuario.getAreaId())))
             throw new IllegalArgumentException("Usuario not allowed");
@@ -94,7 +97,8 @@ public class CobrancaService implements ICobrancaService {
 
         Optional<Usuario> optUsuario = usuarioRepository.findById(usuario.getId());
 
-        if (!optUsuario.isPresent()) throw new IllegalArgumentException("Illegal api access");
+        if (!optUsuario.isPresent())
+            throw new IllegalArgumentException("Illegal api access");
 
         return optUsuario.get();
     }
@@ -116,28 +120,22 @@ public class CobrancaService implements ICobrancaService {
         ciAux.setDescricao(cobrancaInterna.getDescricao());
         ciAux.setValor(cobrancaInterna.getValor());
 
-        System.out.println("Usuario não pertence a area da cobrança");
         if(!usuario.getAreaId().equals(ciAux.getPagadorAreaId()))
             throw new IllegalArgumentException("Usuario não pertence a area da cobrança");
 
-        System.out.println("Pagador e beneficiario pertencem a mesma area");
-        if (ciAux.getPagadorAreaId().equals(cobrancaInterna.getBeneficiarioAreaId()))
+        if (ciAux.getPagadorAreaId().equals(ciAux.getBeneficiarioAreaId()))
             throw new IllegalArgumentException("Pagador e beneficiario pertencem a mesma area");
 
-        System.out.println("Valor inválido");
-        if (cobrancaInterna.getValor().isNaN())
+        if (ciAux.getValor().isNaN())
             throw new IllegalArgumentException("Valor inválido");
 
-        System.out.println("Pagador area not found");
         if (!areaRepository.findById(ciAux.getPagadorAreaId()).isPresent())
             throw new IllegalArgumentException("Pagador area not found");
 
-        System.out.println("Descrição cannot be null");
-        if (cobrancaInterna.getDescricao().length() <= 0)
+        if (ciAux.getDescricao().length() <= 0)
             throw new IllegalArgumentException("Descrição cannot be null");
 
-        System.out.println("Beneficiario area not found");
-        if (!areaRepository.findById(cobrancaInterna.getBeneficiarioAreaId()).isPresent())
+        if (!areaRepository.findById(ciAux.getBeneficiarioAreaId()).isPresent())
             throw new IllegalArgumentException("Beneficiario area not found");
 
         return cobrancaInternaRepository.save(ciAux);

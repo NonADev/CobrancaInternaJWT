@@ -16,8 +16,8 @@ import java.util.Optional;
 @Service
 public class UserService implements IUserService {
 
-    private UserRepository userRepository;
-    private AreaRepository areaRepository;
+    private final UserRepository userRepository;
+    private final AreaRepository areaRepository;
 
     public UserService(UserRepository userRepository, AreaRepository areaRepository) {
         this.userRepository = userRepository;
