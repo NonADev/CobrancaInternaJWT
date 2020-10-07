@@ -124,8 +124,8 @@ public class CobrancaController {
         }
     }
 
-    @GetMapping("/comentario/{id}")
-    public ResponseEntity<?> listComentariosByCobranca(@PathVariable("id") Integer id) {
+    @GetMapping("/get-comentarios-by-cobranca")
+    public ResponseEntity<?> listComentariosByCobranca(@RequestParam("cobrancaId") Integer id) {
         try {
             return ResponseEntity.ok(comentarioService.listComentariosByCobrancaId(id));
         } catch (Exception e) {
@@ -133,7 +133,7 @@ public class CobrancaController {
         }
     }
 
-    @GetMapping("/comentario")
+    @GetMapping("/get-comentario-by-id")
     public ResponseEntity<?> getComentarioById(@RequestParam("comentarioId") Integer id) {
         try {
             return ResponseEntity.ok(comentarioService.getComentarioById(id));
@@ -142,19 +142,19 @@ public class CobrancaController {
         }
     }
 
-    @PostMapping("/comentario")
+    @PostMapping("/create-comentario")
     public ResponseEntity<?> postComentario(@RequestBody Comentario comentario) {
         try {
-            return ResponseEntity.created(getURI("/comentar", comentarioService.insertComentario(comentario).getId())).build();
+            return ResponseEntity.created(getURI("/cobranca-interna/get-comentarios-by-id?comentarioId="+comentarioService.insertComentario(comentario).getId())).build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new Error(e.getMessage()));
         }
     }
 
-    @PutMapping("/comentario/{id}")
+    @PutMapping("/update-comentario/{id}")
     public ResponseEntity<?> putComentario(@RequestBody Comentario comentario, @PathVariable("id") Integer id) {
         try {
-            return ResponseEntity.created(getURI("/comentar", comentarioService.updateComentario(comentario, id).getId())).build();
+            return ResponseEntity.ok(comentarioService.updateComentario(comentario, id).getId());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new Error(e.getMessage()));
         }
@@ -195,9 +195,9 @@ public class CobrancaController {
                 .buildAndExpand(id).toUri();
     }
 
-    private URI getURI(String path, Integer id) {
-        return ServletUriComponentsBuilder.fromCurrentRequest().path(path + "/{id}")
-                .buildAndExpand(id).toUri();
+    private URI getURI(String path) {
+        return ServletUriComponentsBuilder.fromCurrentRequest().path("{path}")
+                .buildAndExpand(path).toUri();
     }
 
     private static class Error {
