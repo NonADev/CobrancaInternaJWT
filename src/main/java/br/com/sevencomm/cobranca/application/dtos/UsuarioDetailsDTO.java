@@ -15,7 +15,6 @@ public class UsuarioDetailsDTO {
         UsuarioDetailsDTO dto = new UsuarioDetailsDTO();
 
         dto.setId(usuario.getId());
-        dto.setAreaId(usuario.getAreaId());
         dto.setLogin(usuario.getLogin());
         dto.setNome(usuario.getNome());
         dto.setEmail(usuario.getEmail());

@@ -3,10 +3,7 @@ package br.com.sevencomm.cobranca.domain.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,16 +19,32 @@ public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
-    Integer areaId;
+
+    @Transient
+    List<Area> areas;
+
     String login;
     String senha;
     String nome;
     String email;
 
+    public static boolean hasArea(List<Area> areas, String nome){
+        for(Area area : areas)
+            if(area.getNome().equals(nome)) return true;
+
+        return false;
+    }
+
+    public static boolean hasArea(List<Area> areas, Integer id){
+        for(Area area : areas)
+            if(area.getId().equals(id)) return true;
+
+        return false;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> lista = new ArrayList<>();
-        return lista;
+        return new ArrayList<>();
     }
 
     @Override

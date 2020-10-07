@@ -28,7 +28,8 @@ public class AreaService implements IAreaService {
     }
 
     public List<Usuario> listUsersByArea(Integer id) {
-        return userRepository.findAllByAreaId(id);
+        //return userRepository.findAllByAreaId(id);
+        return null;
     }
 
     public List<Area> listAreasByName(String nome) {

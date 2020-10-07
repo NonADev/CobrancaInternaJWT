@@ -8,5 +8,7 @@ import java.util.Optional;
 
 public interface AreaRepository extends JpaRepository<Area, Integer> {
     Optional<Area> findById(Integer id);
+    Optional<Area> findByNome(String nome);
+
     List<Area> findByNomeLike(String nome);
 }
