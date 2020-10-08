@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
 
-    private IUserService userService;
+    private final IUserService userService;
 
     public UserController(IUserService userService) {
         this.userService = userService;

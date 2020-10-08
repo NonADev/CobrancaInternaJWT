@@ -111,6 +111,17 @@ public class UserService implements IUserService {
 
         if (!optUsuario.isPresent()) throw new IllegalArgumentException("Illegal api access");
 
+        usuario = optUsuario.get();
+
+        List<UsuarioAreas> usuarioAreasList = userAreasRepository.findAllByUsuarioId(usuario.getId());
+        List<Area> areasUsuario = new ArrayList<>();
+
+        for(UsuarioAreas usuarioAreas : usuarioAreasList){
+            areasUsuario.add(areaRepository.findById(usuarioAreas.getAreaId()).get());
+        }
+
+        usuario.setAreas(areasUsuario);
+
         return optUsuario.get();
     }
 }
