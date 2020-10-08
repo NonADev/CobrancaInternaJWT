@@ -35,8 +35,14 @@ public class UserService implements IUserService {
     }
 
     public List<Usuario> listUsersByAreaId(Integer id) {
-        //return userRepository.findAllByAreaId(id);
-        return null;
+        List<Usuario> usuarioList = new ArrayList<>();
+        List<UsuarioAreas> usuarioAreasList = userAreasRepository.findAllByAreaId(id);
+
+        for(UsuarioAreas usuarioAreas : usuarioAreasList){
+            usuarioList.add(userRepository.findById(usuarioAreas.getUsuarioId()).get());
+        }
+
+        return usuarioList;
     }
 
     public Usuario getUser(Integer id) {

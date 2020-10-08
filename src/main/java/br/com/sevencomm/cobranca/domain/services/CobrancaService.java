@@ -8,10 +8,12 @@ import br.com.sevencomm.cobranca.data.repositories.UsuarioAreasRepository;
 import br.com.sevencomm.cobranca.domain.interfaces.ICobrancaService;
 import br.com.sevencomm.cobranca.domain.models.Cobranca;
 import br.com.sevencomm.cobranca.domain.models.Usuario;
+import br.com.sevencomm.cobranca.domain.models.UsuarioAreas;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +40,13 @@ public class CobrancaService implements ICobrancaService {
         if (!fndCobranca.isPresent())
             throw new ObjectNotFoundException("Cobranca not found");
 
+        if (!userAreaRepository.findFirstByUsuarioIdAndAreaId(usuario.getId(), fndCobranca.get().getBeneficiarioAreaId()).isPresent() &&
+                !userAreaRepository.findFirstByUsuarioIdAndAreaId(usuario.getId(), fndCobranca.get().getPagadorAreaId()).isPresent())
+            throw new IllegalArgumentException("Usuario not allowed");
+
+        //mesmo metodo do que o de cima, mas deixar para legado
         //if (!(fndCobranca.get().getBeneficiarioAreaId().equals(usuario.getAreaId())) && !(fndCobranca.get().getPagadorAreaId().equals(usuario.getAreaId())))
-           // throw new IllegalArgumentException("Usuario not allowed");
+        // throw new IllegalArgumentException("Usuario not allowed");
 
         return fndCobranca.get();
     }
@@ -52,11 +59,20 @@ public class CobrancaService implements ICobrancaService {
         if (!fndCobranca.isPresent())
             throw new IllegalArgumentException("Cobranca not found");
 
+        if (!userAreaRepository.findFirstByUsuarioIdAndAreaId(usuario.getId(), fndCobranca.get().getBeneficiarioAreaId()).isPresent())
+            throw new IllegalArgumentException("Usuario not allowed");
+
+        //mesmo metodo do que o de cima, mas deixar para legado
         //if (!(fndCobranca.get().getBeneficiarioAreaId().equals(usuario.getAreaId())))
-            //throw new IllegalArgumentException("Usuario not allowed");
+        //throw new IllegalArgumentException("Usuario not allowed");
 
         Cobranca cobranca = fndCobranca.get();
+
+        if (cobranca.getStatusId()!=1)
+            throw new IllegalArgumentException("Already approved");
+
         cobranca.setStatusId(2);
+
         cobrancaInternaRepository.save(cobranca);
     }
 
@@ -68,11 +84,20 @@ public class CobrancaService implements ICobrancaService {
         if (!fndCobranca.isPresent())
             throw new IllegalArgumentException("Cobranca not found");
 
+        if (!userAreaRepository.findFirstByUsuarioIdAndAreaId(usuario.getId(), fndCobranca.get().getBeneficiarioAreaId()).isPresent())
+            throw new IllegalArgumentException("Usuario not allowed");
+
+        //mesmo metodo do que o de cima, mas deixar para legado
         //if (!(fndCobranca.get().getBeneficiarioAreaId().equals(usuario.getAreaId())))
-            //throw new IllegalArgumentException("Usuario not allowed");
+        //throw new IllegalArgumentException("Usuario not allowed");
 
         Cobranca cobranca = fndCobranca.get();
+
+        if (cobranca.getStatusId()!=1)
+            throw new IllegalArgumentException("Already recused");
+
         cobranca.setStatusId(3);
+
         cobrancaInternaRepository.save(cobranca);
     }
 
@@ -80,18 +105,58 @@ public class CobrancaService implements ICobrancaService {
         return cobrancaInternaRepository.findAll();
     }
 
-    public List<Cobranca> listCobrancas(Integer areaId) {
-        return cobrancaInternaRepository.findAllByPagadorAreaIdOrBeneficiarioAreaId(areaId, areaId);
+    public List<Cobranca> listCobrancasByArea(Integer areaId) {
+        if(!areaRepository.findById(areaId).isPresent())
+            throw new IllegalArgumentException("Area not found");
+
+        List<Cobranca> cobrancaList = new ArrayList<>();
+        List<UsuarioAreas> usuarioAreasList = userAreaRepository.findAllByAreaId(areaId);
+
+        for (UsuarioAreas u : usuarioAreasList) {
+            List<Cobranca> cobrancas = cobrancaInternaRepository.findAllByPagadorAreaIdOrBeneficiarioAreaId(u.getAreaId(), u.getAreaId());
+            if (!cobrancas.isEmpty()) cobrancaList.addAll(cobrancas);
+        }
+
+        return cobrancaList;
+    }
+
+    public List<Cobranca> listCurrentUserCobrancas() {
+        Usuario usuario = getCurrentUser();
+        List<Cobranca> cobrancaList = new ArrayList<>();
+        List<UsuarioAreas> usuarioAreasList = userAreaRepository.findAllByUsuarioId(usuario.getId());
+
+        for (UsuarioAreas u : usuarioAreasList) {
+            List<Cobranca> cobrancas = cobrancaInternaRepository.findAllByPagadorAreaIdOrBeneficiarioAreaId(u.getAreaId(), u.getAreaId());
+            if (!cobrancas.isEmpty()) cobrancaList.addAll(cobrancas);
+        }
+
+        return cobrancaList;
     }
 
     public List<Cobranca> listCobrancasEnviadas() {
         Usuario usuario = getCurrentUser();
-        return cobrancaInternaRepository.findAllByPagadorAreaId(usuario.getId());
+        List<Cobranca> cobrancaList = new ArrayList<>();
+        List<UsuarioAreas> usuarioAreasList = userAreaRepository.findAllByUsuarioId(usuario.getId());
+
+        for (UsuarioAreas u : usuarioAreasList) {
+            List<Cobranca> cobrancas = cobrancaInternaRepository.findAllByPagadorAreaId(u.getAreaId());
+            if (!cobrancas.isEmpty()) cobrancaList.addAll(cobrancas);
+        }
+
+        return cobrancaList;
     }
 
     public List<Cobranca> listCobrancasRecebidas() {
-        /*Usuario usuario = getCurrentUser();
-        return cobrancaInternaRepository.findAllByBeneficiarioAreaId(usuario.getAreaId());*/ return null;
+        Usuario usuario = getCurrentUser();
+        List<Cobranca> cobrancaList = new ArrayList<>();
+        List<UsuarioAreas> usuarioAreasList = userAreaRepository.findAllByUsuarioId(usuario.getId());
+
+        for (UsuarioAreas u : usuarioAreasList) {
+            List<Cobranca> cobrancas = cobrancaInternaRepository.findAllByBeneficiarioAreaId(u.getAreaId());
+            if (!cobrancas.isEmpty()) cobrancaList.addAll(cobrancas);
+        }
+
+        return cobrancaList;
     }
 
     private Usuario getCurrentUser() {
@@ -116,18 +181,15 @@ public class CobrancaService implements ICobrancaService {
 
         Cobranca ciAux = optAux.get();
 
-        //ciAux.setPagadorAreaId(usuario.getAreaId());
+        if (!userAreaRepository.findFirstByUsuarioIdAndAreaId(usuario.getId(), ciAux.getPagadorAreaId()).isPresent())
+            throw new IllegalArgumentException("Precisa pertencer a area para atualizar a cobrança nesta area");
+
+        ciAux.setPagadorAreaId(cobrancaInterna.getPagadorAreaId());
         ciAux.setStatusId(1); //caso o requisitor altere, o status volta pra 1
         ciAux.setBeneficiarioAreaId(cobrancaInterna.getBeneficiarioAreaId());
         ciAux.setDatahora(cobrancaInterna.getDatahora());
         ciAux.setDescricao(cobrancaInterna.getDescricao());
         ciAux.setValor(cobrancaInterna.getValor());
-
-        //if(!usuario.getAreaId().equals(ciAux.getPagadorAreaId()))
-            //throw new IllegalArgumentException("Usuario não pertence a area da cobrança");
-
-        if (ciAux.getPagadorAreaId().equals(ciAux.getBeneficiarioAreaId()))
-            throw new IllegalArgumentException("Pagador e beneficiario pertencem a mesma area");
 
         if (ciAux.getValor().isNaN())
             throw new IllegalArgumentException("Valor inválido");
@@ -153,8 +215,8 @@ public class CobrancaService implements ICobrancaService {
 
         Cobranca cobranca = optCobranca.get();
 
-        //if (!cobranca.getPagadorAreaId().equals(usuario.getAreaId()))
-            //throw new IllegalArgumentException("Somente o pagador pode apagar a cobranca");
+        if (!userAreaRepository.findFirstByUsuarioIdAndAreaId(usuario.getId(), cobranca.getPagadorAreaId()).isPresent())
+            throw new IllegalArgumentException("Precisa pertencer a area para apagar a cobrança");
 
         cobrancaInternaRepository.deleteById(id);
     }
@@ -162,7 +224,8 @@ public class CobrancaService implements ICobrancaService {
     public Cobranca insertCobranca(Cobranca cobrancaInterna) {
         Usuario usuario = getCurrentUser();
 
-        //cobrancaInterna.setPagadorAreaId(usuario.getAreaId());
+        if (!userAreaRepository.findFirstByUsuarioIdAndAreaId(usuario.getId(), cobrancaInterna.getPagadorAreaId()).isPresent())
+            throw new IllegalArgumentException("Precisa pertencer a area para inserir a cobrança nesta area");
 
         if (cobrancaInterna.getDescricao().length() <= 0)
             throw new IllegalArgumentException("Descrição cannot be null");
@@ -180,6 +243,8 @@ public class CobrancaService implements ICobrancaService {
             throw new IllegalArgumentException("Beneficiario area not found");
 
         cobrancaInterna.setStatusId(1);
+        cobrancaInterna.setPagadorAreaId(cobrancaInterna.getPagadorAreaId());
+
         return cobrancaInternaRepository.save(cobrancaInterna);
     }
 

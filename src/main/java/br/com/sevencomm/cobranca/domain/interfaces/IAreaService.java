@@ -13,6 +13,4 @@ public interface IAreaService {
     Area updateArea(Area area, Integer id);
 
     List<Area> listAreas();
-    List<Usuario> listUsersByArea(Integer id);
-    List<Area> listAreasByName(String areaName);
 }

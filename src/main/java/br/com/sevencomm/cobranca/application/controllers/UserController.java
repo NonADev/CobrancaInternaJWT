@@ -42,6 +42,15 @@ public class UserController {
         }
     }
 
+    @GetMapping("/area/{area_id}")
+    public ResponseEntity<?> getByAreaId(@PathVariable("area_id") Integer id) {
+        try {
+            return ResponseEntity.ok(userService.listUsersByAreaId(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new java.lang.Error(e.getMessage()));
+        }
+    }
+
     @PostMapping("/sign-up")
     public ResponseEntity<?> insertUser(@RequestBody Usuario usuario) {
         try {

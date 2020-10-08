@@ -61,10 +61,10 @@ public class CobrancaController {
         }
     }
 
-    @GetMapping("/get-cobrancas")
-    public ResponseEntity<?> getCobrancas(@RequestParam("userId") Integer usuarioId) {
+    @GetMapping("/get-current-user-cobrancas")
+    public ResponseEntity<?> getCobrancas() {
         try {
-            return ResponseEntity.ok(cobrancaInternaService.listCobrancas(usuarioId));
+            return ResponseEntity.ok(cobrancaInternaService.listCurrentUserCobrancas());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new Error(e.getMessage()));
         }
@@ -91,7 +91,7 @@ public class CobrancaController {
     @GetMapping("/area")
     public ResponseEntity<?> getCobrancasByArea(@RequestParam("areaId") Integer area) {
         try {
-            return ResponseEntity.ok(cobrancaInternaService.listCobrancas(area));
+            return ResponseEntity.ok(cobrancaInternaService.listCobrancasByArea(area));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new Error(e.getMessage()));
         }

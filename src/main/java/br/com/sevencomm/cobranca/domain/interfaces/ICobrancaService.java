@@ -14,7 +14,8 @@ public interface ICobrancaService {
     Cobranca updateCobranca(Cobranca cobrancaInterna, Integer id);
 
     List<Cobranca> listCobrancas();
-    List<Cobranca> listCobrancas(Integer areaId);
+    List<Cobranca> listCobrancasByArea(Integer area);
+    List<Cobranca> listCurrentUserCobrancas();
     List<Cobranca> listAllByStatus(Integer status);
     List<Cobranca> listCobrancasEnviadas(); //pagador
     List<Cobranca> listCobrancasRecebidas(); //recebeneficiario

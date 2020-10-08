@@ -32,12 +32,6 @@ public class AreaService implements IAreaService {
         return null;
     }
 
-    public List<Area> listAreasByName(String nome) {
-        if (nome.length() <= 1) throw new IllegalArgumentException("Minimum name size 2");
-
-        return areaRepository.findByNomeLike("%" + nome + "%");
-    }
-
     public Area getAreaById(Integer id) {
         Optional<Area> optArea = areaRepository.findById(id);
 

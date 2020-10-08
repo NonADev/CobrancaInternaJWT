@@ -34,24 +34,6 @@ public class AreaController {
         }
     }
 
-    @GetMapping("/users/{area_id}")
-    public ResponseEntity<?> getByAreaId(@PathVariable("area_id") Integer id) {
-        try {
-            return ResponseEntity.ok(areaService.listUsersByArea(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new java.lang.Error(e.getMessage()));
-        }
-    }
-
-    @GetMapping("/nome/{nome}")
-    public ResponseEntity<?> getAreasByName(@PathVariable("nome") String nome) {
-        try {
-            return ResponseEntity.ok(areaService.listAreasByName(nome));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new Error(e.getMessage()));
-        }
-    }
-
     @PostMapping
     public ResponseEntity<?> createArea(@RequestBody Area area) {
         try {
